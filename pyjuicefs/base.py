@@ -100,9 +100,6 @@ class JuiceFileSystem(AbstractFileSystem):
         out = [self._strip_protocol(p) for p in out]
         return out
 
-    def walk(self, path, maxdepth=None, topdown=True, **kwargs):
-        return self.session.walk(path, topdown)
-
     def exists(self, path, **kwargs):
         return self.session.path.exists(path)
 
@@ -174,16 +171,16 @@ class JuiceFSFile(AbstractBufferedFile):
         self.fio = io.open(fs.session, path, mode)
 
     def _fetch_range(self, start, end):
-        fd = super().fs.session.open(super().path, self.flags, self.permission)
-        super().fs.session.lseek(fd, start, os.SEEK_SET)
-        b = super().fs.session.read(fd, end)
-        super().fs.session.close(fd)
+        fd = self.fs.session.open(self.path, self.flags, self.permission)
+        self.fs.session.lseek(fd, start, os.SEEK_SET)
+        b = self.fs.session.read(fd, end)
+        self.fs.session.close(fd)
         return b
 
     def tell(self):
         loc = self.fio.tell()
-        super().loc = loc
-        return super().tell()
+        self.loc = loc
+        return loc
 
     def seek(self, loc, whence=0):
         """
@@ -198,8 +195,9 @@ class JuiceFSFile(AbstractBufferedFile):
         Returns:
             the new cursor position in bytes, starting from the beginning.
         """
-        offset = super().seek(loc, whence)
-        return self.fio.seek(offset, whence)
+        nloc = self.fio.seek(loc, whence)
+        self.loc = nloc
+        return self.loc
 
     def write(self, data):
         return self.fio.write(data)
