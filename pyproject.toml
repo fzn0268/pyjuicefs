@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "pyjuicefs"
+version = "0.1.0"
+description = "fsspec based filesystem interface for JuiceFS"
+authors = ["fzn0268"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fsspec = "^2023.6.0"
+juicefs = "^0.0.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+pyjuicefs = 'pyjuicefs.__main__:main'
+
+[tool.poetry.plugins] # Optional super table
+
+[tool.poetry.plugins."fsspec.specs"]
+"juicefs" = "pyjuicefs.JuiceFileSystem"

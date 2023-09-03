@@ -38,8 +38,12 @@ setup(
     long_description_content_type="text/markdown",
     author="fzn0268",
     packages=find_packages(exclude=["tests", ".github"]),
+    python_requires=">= 3.8",
     install_requires=read_requirements("requirements.txt"),
     entry_points={
+        'fsspec.specs': [
+            'juicefs=pyjuicefs.JuiceFileSystem',
+        ],
         "console_scripts": ["pyjuicefs = pyjuicefs.__main__:main"]
     },
     extras_require={"test": read_requirements("requirements-test.txt")},
