@@ -28,16 +28,6 @@ NAME = "pyjuicefs"
 MODE_MASK_R = 4
 
 
-def _retrive_entry_type(e: DirEntry):
-    if e.is_file():
-        return 'file'
-    elif e.is_dir():
-        return 'directory'
-    elif e.is_symlink():
-        return 'symlink'
-    return 'unknown'
-
-
 class JuiceFileSystem(AbstractFileSystem):
 
     def __init__(
@@ -51,7 +41,7 @@ class JuiceFileSystem(AbstractFileSystem):
         Parameters
         ----------
         name: str
-            Metadata engine URI used for this session
+            Name used for file system connection instance
         config: Dict[str, Union[str, bool, int, float]]
             JuiceFS configuration, available keys: https://github.com/juicedata/juicefs/blob/main/sdk/java/libjfs/main.go#L215
         """
@@ -91,10 +81,20 @@ class JuiceFileSystem(AbstractFileSystem):
     def rmdir(self, path):
         self.session.rmdir(path)
 
+    @staticmethod
+    def _retrive_entry_type(e: DirEntry):
+        if e.is_file():
+            return 'file'
+        elif e.is_dir():
+            return 'directory'
+        elif e.is_symlink():
+            return 'symlink'
+        return 'unknown'
+
     def ls(self, path, detail=True, **kwargs):
         if detail:
             out = self.session.scandir(path)
-            out = list({'name': e.path, 'size': e.stat().st_size, 'type': _retrive_entry_type(e)} for e in out)
+            out = list({'name': e.path, 'size': e.stat().st_size, 'type': JuiceFileSystem._retrive_entry_type(e)} for e in out)
             return out
         out = self.session.listdir(path)
         out = [self._strip_protocol(p) for p in out]
